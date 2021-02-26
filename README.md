@@ -71,8 +71,4 @@ services:
       SOURCE_USER_SCREEN_NAMES: SlashNephy,UN_NERV
       # ユーザに自身を含めるか (デフォルト: 無効)
       SOURCE_USER_INCLUDE_SELF: 1
-
-volumes:
-  data:
-    driver: local
 ```
