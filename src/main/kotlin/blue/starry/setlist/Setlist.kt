@@ -75,36 +75,35 @@ object Setlist {
             return@coroutineScope
         }
 
-        listOf(
-            willBeAdded.chunked(100).mapNotNull { chunk ->
-                if (Env.DRYRUN) {
-                    return@mapNotNull null
-                }
-
-                launch {
-                    SetlistTwitterClient.lists.addMembersByUserIds(
-                        listId = targetList.id,
-                        userIds = chunk.map { it.id }
-                    ).execute()
-
-                    logger.debug { "Called create_all for ${chunk.size} users. [${chunk.joinToString(", ") { it.screenName }}]" }
-                }
-            },
-            willBeRemoved.chunked(100).mapNotNull { chunk ->
-                if (Env.DRYRUN) {
-                    return@mapNotNull null
-                }
-
-                launch {
-                    SetlistTwitterClient.lists.removeMembersByUserIds(
-                        listId = targetList.id,
-                        userIds = chunk.map { it.id }
-                    ).execute()
-
-                    logger.debug { "Called destroy_all for ${chunk.size} users. [${chunk.joinToString(", ") { it.screenName }}]" }
-                }
+        willBeRemoved.chunked(100).mapNotNull { chunk ->
+            if (Env.DRYRUN) {
+                return@mapNotNull null
             }
-        ).flatten().joinAll()
+
+            launch {
+                SetlistTwitterClient.lists.removeMembersByUserIds(
+                    listId = targetList.id,
+                    userIds = chunk.map { it.id }
+                ).execute()
+
+                logger.debug { "Called destroy_all for ${chunk.size} users. [${chunk.joinToString(", ") { it.screenName }}]" }
+            }
+        }.joinAll()
+
+        willBeAdded.chunked(100).mapNotNull { chunk ->
+            if (Env.DRYRUN) {
+                return@mapNotNull null
+            }
+
+            launch {
+                SetlistTwitterClient.lists.addMembersByUserIds(
+                    listId = targetList.id,
+                    userIds = chunk.map { it.id }
+                ).execute()
+
+                logger.debug { "Called create_all for ${chunk.size} users. [${chunk.joinToString(", ") { it.screenName }}]" }
+            }
+        }.joinAll()
 
         logger.info {
             buildString {
