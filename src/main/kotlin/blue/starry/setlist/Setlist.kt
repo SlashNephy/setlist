@@ -53,15 +53,17 @@ object Setlist {
             )
             .asFlow()
             .toList()
+        val previousUserIds = previousUsers.map { it.id }.toSet()
         val currentUsers = listOf(
             getMembersByListIds(),
             getMembersByListSlugs(),
             getFollowingUsersByUserIds(),
             getFollowingUsersByUserScreenNames()
         ).asFlow().flattenConcat().distinctUntilChangedBy { it.id }.toList()
+        val currentUserIds = currentUsers.map { it.id }.toSet()
 
-        val willBeAdded = currentUsers - previousUsers
-        val willBeRemoved = previousUsers - currentUsers
+        val willBeAdded = currentUsers.filter { it.id !in previousUserIds }
+        val willBeRemoved = previousUsers.filter { it.id !in currentUserIds }
 
         if (willBeAdded.isEmpty() && willBeRemoved.isEmpty()) {
             return@coroutineScope
@@ -79,9 +81,9 @@ object Setlist {
                 }
 
                 launch {
-                    SetlistTwitterClient.lists.addMembersByScreenNames(
+                    SetlistTwitterClient.lists.addMembersByUserIds(
                         listId = targetList.id,
-                        screenNames = chunk.map { it.screenName }
+                        userIds = chunk.map { it.id }
                     ).execute()
 
                     logger.debug { "Called create_all for ${chunk.size} users. [${chunk.joinToString(", ") { it.screenName }}]" }
