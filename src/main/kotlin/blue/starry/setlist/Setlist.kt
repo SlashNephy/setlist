@@ -58,7 +58,8 @@ object Setlist {
             getMembersByListIds(),
             getMembersByListSlugs(),
             getFollowingUsersByUserIds(),
-            getFollowingUsersByUserScreenNames()
+            getFollowingUsersByUserScreenNames(),
+            if (Env.SOURCE_USER_INCLUDE_SELF) flowOf(owner.result) else emptyFlow()
         ).asFlow().flattenConcat().distinctUntilChangedBy { it.id }.toList()
         val currentUserIds = currentUsers.map { it.id }.toSet()
 
