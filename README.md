@@ -15,6 +15,13 @@
 
 - Java 8 or later
 
+## Limitation
+
+Due to hidden restrictions in the Twitter API, there is a limit to the number of users that can be added to or removed from a list within 24 hours.  
+According to various articles on the Internet, this rate limit is said to be 300 users/24 hours.  
+This means that editing members of the list may not be finished for some time.  
+For more information, please see https://scrapbox.io/ci7lus/Twitter_lists%2Fmembers%2Fcreate_%E8%A6%8F%E5%88%B6.
+
 ## Get Started
 
 ### Docker
