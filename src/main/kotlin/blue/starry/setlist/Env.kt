@@ -32,7 +32,10 @@ private val stringOrNull: ReadOnlyProperty<Env, String?>
 
 private val stringList: ReadOnlyProperty<Env, List<String>>
     get() = ReadOnlyProperty { _, property ->
-        System.getenv(property.name)?.split(",").orEmpty()
+        System.getenv()
+            .filterKeys { it.startsWith(property.name) }
+            .flatMap { it.value.split(",") }
+            .filter { it.isNotBlank() }
     }
 
 private val longOrNull: ReadOnlyProperty<Env, Long?>
@@ -42,7 +45,11 @@ private val longOrNull: ReadOnlyProperty<Env, Long?>
 
 private val longList: ReadOnlyProperty<Env, List<Long>>
     get() = ReadOnlyProperty { _, property ->
-        System.getenv(property.name)?.split(",")?.mapNotNull { it.toLongOrNull() }.orEmpty()
+        System.getenv()
+            .filterKeys { it.startsWith(property.name) }
+            .flatMap { it.value.split(",") }
+            .filter { it.isNotBlank() }
+            .mapNotNull { it.trim().toLongOrNull() }
     }
 
 private fun String?.toBooleanFazzy(): Boolean {
