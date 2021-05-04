@@ -17,6 +17,7 @@ object Env {
     val SOURCE_USER_SCREEN_NAMES by stringList
     val SOURCE_USER_INCLUDE_SELF by boolean
 
+    val INTERVAL_SECONDS by long { 300 }
     val DRYRUN by boolean
 }
 
@@ -37,6 +38,10 @@ private val stringList: ReadOnlyProperty<Env, List<String>>
             .flatMap { it.value.split(",") }
             .filter { it.isNotBlank() }
     }
+
+private fun long(default: () -> Long) = ReadOnlyProperty<Env, Long> { _, property ->
+    System.getenv(property.name)?.toLongOrNull() ?: default()
+}
 
 private val longOrNull: ReadOnlyProperty<Env, Long?>
     get() = ReadOnlyProperty { _, property ->

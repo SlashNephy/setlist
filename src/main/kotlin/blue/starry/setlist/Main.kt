@@ -6,7 +6,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import mu.KotlinLogging
 import kotlin.time.measureTime
-import kotlin.time.minutes
+import kotlin.time.seconds
 
 val logger = KotlinLogging.logger("setlist")
 
@@ -23,6 +23,6 @@ suspend fun main() = coroutineScope {
         }
         logger.trace { "Merge operation finished in $taken." }
 
-        delay(3.minutes)
+        delay(Env.INTERVAL_SECONDS.seconds)
     }
 }
