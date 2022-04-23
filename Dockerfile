@@ -21,7 +21,7 @@ RUN gradle -version > /dev/null \
     && gradle shadowJar --parallel --no-daemon
 
 # Final Stage
-FROM adoptopenjdk:11-jre-hotspot
+FROM adoptopenjdk:16-jre-hotspot
 
 COPY --from=build /app/build/libs/setlist-all.jar /app/setlist.jar
 
