@@ -2,7 +2,7 @@
 
 🐦 Auto-generate Twitter lists based on your/others' following or list members.
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-1.4.30-blue)](https://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/Kotlin-1.6-blue)](https://kotlinlang.org)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/SlashNephy/setlist)](https://github.com/SlashNephy/setlist/releases)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/SlashNephy/setlist/Docker)](https://hub.docker.com/r/slashnephy/setlist)
 [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/slashnephy/setlist/latest)](https://hub.docker.com/r/slashnephy/setlist)
@@ -13,7 +13,7 @@
 
 ## Requirements
 
-- Java 8 or later
+- Java 17 or later
 
 ## Limitation
 
@@ -28,11 +28,11 @@ For more information, please see https://scrapbox.io/ci7lus/Twitter_lists%2Fmemb
 
 There are some image tags.
 
-- `slashnephy/setlist:latest`  
+- `ghcr.io/slashnephy/setlist:latest`  
   Automatically published every push to `master` branch.
-- `slashnephy/setlist:dev`  
+- `ghcr.io/slashnephy/setlist:dev`  
   Automatically published every push to `dev` branch.
-- `slashnephy/setlist:<version>`  
+- `ghcr.io/slashnephy/setlist:<version>`  
   Coresponding to release tags on GitHub.
 
 `docker-compose.yml`
@@ -43,7 +43,7 @@ version: '3.8'
 services:
   setlist:
     container_name: setlist
-    image: slashnephy/setlist:latest
+    image: ghcr.io/slashnephy/setlist
     restart: always
     environment:
       # Twitter の資格情報 (必須)

@@ -2,11 +2,13 @@ package blue.starry.setlist
 
 import kotlinx.coroutines.delay
 import mu.KotlinLogging
+import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
-import kotlin.time.minutes
+import kotlin.time.Duration.Companion.minutes
 
 val logger = KotlinLogging.logger("setlist")
 
+@OptIn(ExperimentalTime::class)
 suspend fun main() {
     while (true) {
         val taken = measureTime {
