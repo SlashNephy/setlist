@@ -7,13 +7,13 @@ import kotlinx.coroutines.isActive
 import mu.KotlinLogging
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
-import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 val logger = KotlinLogging.logger("setlist")
 
 @OptIn(ExperimentalTime::class)
-suspend fun main() {
-    while (true) {
+suspend fun main() = coroutineScope {
+    while (isActive) {
         val taken = measureTime {
             try {
                 Setlist.merge()
