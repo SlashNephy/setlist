@@ -13,38 +13,35 @@ import blue.starry.penicillin.extensions.cursor.byCursor
 import blue.starry.penicillin.extensions.cursor.nextCursor
 import blue.starry.penicillin.models.User
 import blue.starry.penicillin.models.cursor.CursorUsers
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
 
 object Setlist {
     private const val listMemberLimit = 5000
-    private val owner by SetlistTwitterClient.account.verifyCredentials
+    private val owner = runBlocking {
+        SetlistTwitterClient.account.verifyCredentials.execute()
+    }
 
     private val targetList by lazy {
         val (id, slug) = Env.TARGET_LIST_ID to Env.TARGET_LIST_SLUG
 
-        when {
-            id != null -> {
-                SetlistTwitterClient.lists
-                    .show(id)
-                    .complete()
-                    .result
-            }
-            slug != null -> {
-                SetlistTwitterClient.lists
-                    .showByOwnerId(slug = slug, ownerId = owner.result.id)
-                    .complete()
-                    .result
-            }
-            else -> {
-                val ownedLists = SetlistTwitterClient.lists.list.complete()
-                error("Both of TARGET_LIST_ID and TARGET_LIST_SLUG are not present. FYI, you currently own the following lists.\n${ownedLists.joinToString(", ") { "${it.name} (ID: ${it.id}, Slug: \"${it.slug}\")" }}")
+        runBlocking {
+            when {
+                id != null -> {
+                    SetlistTwitterClient.lists.show(id).execute().result
+                }
+                slug != null -> {
+                    SetlistTwitterClient.lists.showByOwnerId(slug = slug, ownerId = owner.result.id).execute().result
+                }
+                else -> {
+                    val ownedLists = SetlistTwitterClient.lists.list.execute()
+                    error("Both of TARGET_LIST_ID and TARGET_LIST_SLUG are not present. FYI, you currently own the following lists.\n${ownedLists.joinToString(", ") { "${it.name} (ID: ${it.id}, Slug: \"${it.slug}\")" }}")
+                }
             }
         }
     }
 
+    @OptIn(FlowPreview::class)
     suspend fun merge() = coroutineScope {
         val previousUsers = SetlistTwitterClient.lists
             .members(
@@ -124,6 +121,7 @@ object Setlist {
         }
     }
 
+    @OptIn(FlowPreview::class)
     private fun getMembersByListIds(): Flow<User> {
         if (Env.SOURCE_LIST_IDS.isEmpty()) {
             return emptyFlow()
@@ -137,6 +135,7 @@ object Setlist {
         }
     }
 
+    @OptIn(FlowPreview::class)
     private fun getMembersByListSlugs(): Flow<User> {
         if (Env.SOURCE_LIST_SLUGS.isEmpty()) {
             return emptyFlow()
@@ -153,6 +152,7 @@ object Setlist {
         }
     }
 
+    @OptIn(FlowPreview::class)
     private fun getFollowingUsersByUserIds(): Flow<User> {
         val ids = if (Env.SOURCE_USER_INCLUDE_SELF) {
             Env.SOURCE_USER_IDS.plus(owner.result.id)
@@ -174,6 +174,7 @@ object Setlist {
         }
     }
 
+    @OptIn(FlowPreview::class)
     private fun getFollowingUsersByUserScreenNames(): Flow<User> {
         if (Env.SOURCE_USER_SCREEN_NAMES.isEmpty()) {
             return emptyFlow()
@@ -189,14 +190,14 @@ object Setlist {
         }
     }
 
-    private fun CursorJsonObjectApiAction<CursorUsers>.asFlow(): Flow<User> = flow {
+    private fun CursorJsonObjectApiAction<CursorUsers, User>.asFlow(): Flow<User> = flow {
         val first = execute()
-        emitAll(first.result.users.asFlow())
+        emitAll(first.result.items.asFlow())
 
         var cursor = first.nextCursor
         while (cursor != 0L) {
             val response = first.byCursor(cursor).execute()
-            emitAll(response.result.users.asFlow())
+            emitAll(response.result.items.asFlow())
 
             cursor = response.nextCursor
 
